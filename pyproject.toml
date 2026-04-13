@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "basalt-strata"
-version = "1.0.1"
+version = "1.0.4"
 description = "Strategy testing and evaluation library for Indian equity and derivatives markets"
 readme = "README.md"
 requires-python = ">=3.9"
