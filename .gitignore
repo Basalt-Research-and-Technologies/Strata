@@ -1,0 +1,64 @@
+# Basalt Strata — .gitignore
+
+# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+*.whl
+
+# ── Virtual environments ─────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# ── Pytest & coverage ────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+*.coveragerc
+
+# ── Outputs / tearsheets ─────────────────────────────────────
+# Keep the outputs/ folder but ignore its contents
+outputs/*.json
+outputs/*.csv
+demo/outputs/*.json
+demo/outputs/*.csv
+
+# ── IDE & OS ─────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+*.bak
+
+# ── Type checking ────────────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+.pyright/
+
+# ── Real data files (don't commit large CSVs) ────────────────
+*.csv
+!demo/sample_data*.csv
+
+# ── Jupyter ──────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Misc ─────────────────────────────────────────────────────
+*.log
+*.tmp

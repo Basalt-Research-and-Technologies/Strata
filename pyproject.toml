@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "basalt-strata"
+version = "1.0.0"
+description = "Strategy testing and evaluation library for Indian equity and derivatives markets"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Basalt Research & Technologies" }
+]
+keywords = [
+    "quantitative-finance", "backtesting", "NSE", "NIFTY",
+    "trading", "algotrading", "India", "derivatives", "F&O"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+]
+
+[project.urls]
+Homepage       = "https://github.com/basalt-research/basalt-strata"
+Documentation  = "https://github.com/basalt-research/basalt-strata#readme"
+"Bug Tracker"  = "https://github.com/basalt-research/basalt-strata/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "build",
+    "twine",
+]
+
+[project.scripts]
+basalt-strata = "basalt_strata.__main__:main"
+
+[tool.setuptools.packages.find]
+where   = ["."]
+include = ["basalt_strata*"]
+
+[tool.setuptools.package-data]
+basalt_strata = ["py.typed"]
