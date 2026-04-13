@@ -92,7 +92,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     # Backtest config — all user-controlled, nothing hardcoded
     p.add_argument("--capital",       type=float, default=1_000_000,
-                   help="Starting capital in ₹.")
+                   help="Starting capital in INR.")
     p.add_argument("--lot-size",      type=int,   default=50,
                    help="Units per lot (Nifty standard = 50).")
     p.add_argument("--lots",          type=int,   default=1,
@@ -100,7 +100,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--slippage",      type=float, default=0.0005,
                    help="Slippage fraction of price.")
     p.add_argument("--commission",    type=float, default=20.0,
-                   help="Flat ₹ per order.")
+                   help="Flat INR per order.")
     p.add_argument("--max-dd",        type=float, default=None,
                    help="Auto-stop drawdown limit, e.g. 0.20 = 20%%.")
     p.add_argument("--rfr",           type=float, default=0.065,

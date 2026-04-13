@@ -22,6 +22,7 @@ BRT thresholds (Section 10):
 from __future__ import annotations
 
 import math
+import warnings
 from typing import Optional
 
 import numpy as np
@@ -97,8 +98,13 @@ class Analytics:
 
         total_return = (ec.iloc[-1] - self.initial_capital) / self.initial_capital
         n_bars = len(ec)
-        years = n_bars / self.bars_per_year
-        cagr = (ec.iloc[-1] / self.initial_capital) ** (1 / years) - 1 if years > 0 else None
+        years  = n_bars / self.bars_per_year
+        # CAGR is undefined when final equity is negative (can't raise negative to fractional power)
+        final_eq = ec.iloc[-1]
+        if years > 0 and final_eq > 0 and self.initial_capital > 0:
+            cagr = (final_eq / self.initial_capital) ** (1 / years) - 1
+        else:
+            cagr = None
 
         # Monthly P&L summary
         monthly = ec.resample("ME").last().pct_change().dropna()
@@ -187,8 +193,12 @@ class Analytics:
         running_max = ec.cummax()
         max_dd = float((((ec - running_max) / running_max).min()))
         n_bars = len(ec)
-        years = n_bars / self.bars_per_year
-        cagr = (ec.iloc[-1] / self.initial_capital) ** (1 / years) - 1 if years > 0 else None
+        years  = n_bars / self.bars_per_year
+        final_eq = ec.iloc[-1]
+        if years > 0 and final_eq > 0 and self.initial_capital > 0:
+            cagr = (final_eq / self.initial_capital) ** (1 / years) - 1
+        else:
+            cagr = None
         calmar = float(cagr / abs(max_dd)) if (cagr is not None and max_dd < 0) else None
 
         # Omega ratio (threshold = risk-free per bar)

@@ -31,10 +31,10 @@ import pandas as pd
 def _print_banner() -> None:
     print(
         "\n"
-        "╔══════════════════════════════════════════════════╗\n"
-        "║        Basalt Strata  ·  Backtesting Library     ║\n"
-        "║        Indian Equity & Derivatives · NSE/BSE      ║\n"
-        "╚══════════════════════════════════════════════════╝"
+        "+--------------------------------------------------+\n"
+        "|        Basalt Strata  .  Backtesting Library     |\n"
+        "|        Indian Equity & Derivatives . NSE/BSE     |\n"
+        "+--------------------------------------------------+"
     )
 
 
@@ -91,7 +91,7 @@ Examples
     gen = parser.add_argument_group("Data generation (--demo only)")
     gen.add_argument(
         "--bars", type=int, default=504, metavar="N",
-        help="Number of synthetic price bars to generate. (default: 504 ≈ 2 years daily)",
+        help="Number of synthetic price bars to generate. (default: 504 ~ 2 years daily)",
     )
     gen.add_argument(
         "--seed", type=int, default=None, metavar="INT",
@@ -102,7 +102,7 @@ Examples
     bt = parser.add_argument_group("Backtest configuration")
     bt.add_argument(
         "--capital", type=float, default=1_000_000, metavar="INR",
-        help="Starting capital in ₹. (default: 1,000,000)",
+        help="Starting capital in INR. (default: 1,000,000)",
     )
     bt.add_argument(
         "--lot-size", type=int, default=50, metavar="UNITS",
@@ -118,7 +118,7 @@ Examples
     )
     bt.add_argument(
         "--commission", type=float, default=20.0, metavar="INR",
-        help="Flat ₹ per order (entry and exit each counted). (default: 20)",
+        help="Flat INR per order (entry and exit each counted). (default: 20)",
     )
     bt.add_argument(
         "--max-dd", type=float, default=None, metavar="FRAC",
@@ -207,17 +207,15 @@ def run_demo(args: argparse.Namespace) -> int:
     from basalt_strata import DataFeed, RuleBasedStrategy, Backtest
 
     seed_label = str(args.seed) if args.seed is not None else "random"
-    print(
-        f"\n  Generating {args.bars} synthetic bars  (seed={seed_label}) …"
-    )
+    print(f"\n  Generating {args.bars} synthetic bars  (seed={seed_label}) ...")
     raw  = _generate_ohlcv(n_bars=args.bars, seed=args.seed)
     feed = DataFeed.from_dataframe(raw, symbol="NIFTY-SYNTHETIC", timeframe="1D")
 
     print("  Strategy     : EMA(10) / EMA(50) crossover")
-    print(f"  Capital      : ₹{args.capital:,.0f}")
-    print(f"  Lot size     : {args.lot_size} units × {args.lots} lot(s)")
+    print(f"  Capital      : INR {args.capital:,.0f}")
+    print(f"  Lot size     : {args.lot_size} units x {args.lots} lot(s)")
     print(f"  Slippage     : {args.slippage * 100:.3f}%")
-    print(f"  Commission   : ₹{args.commission} per order")
+    print(f"  Commission   : INR {args.commission} per order")
     print(f"  Max DD limit : {f'{args.max_dd*100:.1f}%' if args.max_dd else 'disabled'}")
     print(f"  Risk-free    : {args.rfr * 100:.2f}%  |  bars/year: {args.bars_per_year}\n")
 
@@ -239,17 +237,17 @@ def run_demo(args: argparse.Namespace) -> int:
     print(result.summary())
 
     if result.early_stop:
-        print("\n  [!] Backtest stopped early — max drawdown limit hit.")
+        print("\n  [!] Backtest stopped early -- max drawdown limit hit.")
 
     m = result.metrics
     print(
         f"\n  Trades logged : {m.get('total_trades')}\n"
-        f"  Final equity  : ₹{m.get('final_equity'):>15,.2f}\n"
+        f"  Final equity  : INR {m.get('final_equity'):>15,.2f}\n"
     )
 
     if not args.no_file:
         result.to_json(args.output)
-        print(f"  Tearsheet     → {Path(args.output).resolve()}\n")
+        print(f"  Tearsheet  --> {Path(args.output).resolve()}\n")
 
     return 0
 

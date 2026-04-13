@@ -115,11 +115,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
     # -- Backtest config (all user-controlled) --
     bt = p.add_argument_group("Backtest configuration")
-    bt.add_argument("--capital",      type=float, default=1_000_000, help="Starting capital in ₹.")
+    bt.add_argument("--capital",      type=float, default=1_000_000, help="Starting capital in INR.")
     bt.add_argument("--lot-size",     type=int,   default=50,        help="Units per lot.")
     bt.add_argument("--lots",         type=int,   default=1,         help="Lots per trade signal.")
     bt.add_argument("--slippage",     type=float, default=0.0005,    help="Slippage fraction of price.")
-    bt.add_argument("--commission",   type=float, default=20.0,      help="Flat ₹ per order.")
+    bt.add_argument("--commission",   type=float, default=20.0,      help="Flat INR per order.")
     bt.add_argument("--max-dd",       type=float, default=None,      help="Max drawdown limit (e.g. 0.20).")
     bt.add_argument("--rfr",          type=float, default=0.065,     help="Annual risk-free rate.")
     bt.add_argument("--bars-per-year",type=int,   default=252,       help="Bars per year for annualisation.")
@@ -141,7 +141,7 @@ def main() -> int:
 
     # 1. Load data
     if args.csv:
-        print(f"[+] Loading data from {args.csv} …")
+        print(f"[+] Loading data from {args.csv} ...")
         feed = DataFeed.from_csv(
             args.csv,
             symbol=args.symbol,
@@ -149,7 +149,7 @@ def main() -> int:
             date_col=args.date_col,
         )
     else:
-        print(f"[+] Generating {args.bars} synthetic bars (seed={args.seed}) …")
+        print(f"[+] Generating {args.bars} synthetic bars (seed={args.seed}) ...")
         feed = _synthetic_feed(
             n_bars=args.bars,
             seed=args.seed,
@@ -169,7 +169,7 @@ def main() -> int:
     print(f"[+] Strategy : {args.strategy}  ({rule_fn.__name__ if hasattr(rule_fn, '__name__') else rule_fn.func.__name__})")
 
     # 3. Run backtest
-    print("[+] Running backtest …\n")
+    print("[+] Running backtest ...\n")
     result = Backtest(
         feed              = feed,
         strategy          = strategy,
@@ -193,14 +193,14 @@ def main() -> int:
     m = result.metrics
     print(
         f"\n  Trades      : {m.get('total_trades')}\n"
-        f"  Final equity: ₹{m.get('final_equity'):>15,.2f}\n"
+        f"  Final equity: INR {m.get('final_equity'):>15,.2f}\n"
         f"  BRT pass    : {m.get('brt_thresholds', {}).get('brt_pass')}\n"
     )
 
     # 5. Save tearsheet
     if args.output:
         result.to_json(args.output)
-        print(f"[+] Tearsheet written → {Path(args.output).resolve()}")
+        print(f"[+] Tearsheet written --> {Path(args.output).resolve()}")
 
     return 0
 
