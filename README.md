@@ -28,7 +28,97 @@ pip install basalt-strata
 
 ---
 
-## Core concept — the separation of concerns
+## Quick demo (no setup needed)
+
+```bash
+pip install basalt-strata
+python -m basalt_strata --demo
+```
+
+---
+
+## Using basalt-strata as a pip package
+
+> **You only need `pip install basalt-strata`. You do NOT need this codebase.**
+
+If you installed via pip and are writing your own trading system,  
+create two files anywhere on your machine:
+
+### File 1 — `my_strategies.py`  ← your strategy logic lives here
+
+```python
+# my_strategies.py   (your file, anywhere on your machine)
+import pandas as pd
+
+def ema_crossover(df: pd.DataFrame) -> pd.Series:
+    """Buy when EMA(10) > EMA(50), sell when below."""
+    fast = df["close"].ewm(span=10, adjust=False).mean()
+    slow = df["close"].ewm(span=50, adjust=False).mean()
+    sig  = pd.Series(0, index=df.index, dtype=int)
+    sig[fast > slow] = 1
+    sig[fast < slow] = -1
+    return sig
+
+def my_rsi_strategy(df: pd.DataFrame) -> pd.Series:
+    """RSI(14) mean-reversion."""
+    delta = df["close"].diff()
+    gain  = delta.clip(lower=0).ewm(com=13, adjust=False).mean()
+    loss  = (-delta.clip(upper=0)).ewm(com=13, adjust=False).mean()
+    rsi   = 100 - (100 / (1 + gain / loss.replace(0, float("nan"))))
+    sig   = pd.Series(0, index=df.index, dtype=int)
+    sig[rsi < 30] = 1
+    sig[rsi > 70] = -1
+    return sig.fillna(0).astype(int)
+
+# Rules for any strategy function:
+#   - Receives df: pd.DataFrame (columns: open, high, low, close, volume)
+#   - Returns pd.Series of int with same index as df
+#   - Values must be in {-1, 0, 1}  — no NaN allowed
+#   - Never put capital, lots, or commission inside the strategy
+```
+
+### File 2 — `run_backtest.py`  ← your runner
+
+```python
+# run_backtest.py   (your file, anywhere on your machine)
+from basalt_strata import DataFeed, RuleBasedStrategy, Backtest, Timeframe
+from my_strategies import ema_crossover   # import from YOUR file
+
+# 1. Load your data
+feed = DataFeed.from_csv(
+    "nifty_15min.csv",       # your CSV
+    symbol="NIFTY",
+    timeframe="15min",
+    date_col="timestamp",
+)
+
+# 2. Wrap your strategy
+strategy = RuleBasedStrategy(rule_fn=ema_crossover)
+
+# 3. Run backtest
+result = Backtest(
+    feed               = feed,
+    strategy           = strategy,
+    initial_capital    = 1_000_000,
+    lot_size           = 50,
+    lots_per_trade     = 1,
+    slippage_pct       = 0.0005,
+    commission         = 20,
+    max_drawdown_limit = 0.20,
+    risk_free_rate     = 0.065,
+    bars_per_year      = Timeframe.MIN15,
+).run()
+
+# 4. View results
+print(result.summary())
+result.to_json("tearsheet.json")
+```
+
+**That's the complete workflow.** No codebase, no examples folder — just your  
+two files and `pip install basalt-strata`.
+
+---
+
 
 Your strategy answers **one question only**: buy, sell, or flat?
 
