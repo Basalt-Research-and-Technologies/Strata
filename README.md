@@ -386,7 +386,7 @@ pytest test_e2e.py -v --max-dd 0.15 --bars-per-year 252
 ## Testing on real data (examples/)
 
 ```bash
-cd "d:\BRT\Tech\files (1)"
+# cd to the directory containing your CSV data
 
 # Default: EMA crossover on 2024 data, output saved to outputs/
 py examples/run_real_data.py

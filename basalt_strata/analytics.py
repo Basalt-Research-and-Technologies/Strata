@@ -98,13 +98,8 @@ class Analytics:
 
         total_return = (ec.iloc[-1] - self.initial_capital) / self.initial_capital
         n_bars = len(ec)
-        years  = n_bars / self.bars_per_year
-        # CAGR is undefined when final equity is negative (can't raise negative to fractional power)
-        final_eq = ec.iloc[-1]
-        if years > 0 and final_eq > 0 and self.initial_capital > 0:
-            cagr = (final_eq / self.initial_capital) ** (1 / years) - 1
-        else:
-            cagr = None
+        years = n_bars / self.bars_per_year
+        cagr = (ec.iloc[-1] / self.initial_capital) ** (1 / years) - 1 if years > 0 else None
 
         # Monthly P&L summary
         monthly = ec.resample("ME").last().pct_change().dropna()

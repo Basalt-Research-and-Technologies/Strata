@@ -1,0 +1,25 @@
+# MANIFEST.in — controls what goes into the sdist (.tar.gz)
+# Only the basalt_strata package + the bare minimum for a valid sdist.
+
+# ── Always include ────────────────────────────────────────────
+include LICENSE
+include README.md
+include pyproject.toml
+
+# ── The library itself ────────────────────────────────────────
+recursive-include basalt_strata *.py py.typed
+
+# ── Explicitly exclude everything else ───────────────────────
+prune demo
+prune examples
+prune outputs
+prune .pytest_cache
+prune __pycache__
+prune basalt_strata/__pycache__
+
+exclude conftest.py
+exclude test_e2e.py
+exclude *.csv
+exclude *.json
+exclude *.log
+exclude *.tmp

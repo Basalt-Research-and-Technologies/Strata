@@ -225,3 +225,103 @@ def intraday_ema_crossover(
     # Bars outside session remain 0 (flat) — forces exit at session close
 
     return signal.astype(int)
+
+import pandas as pd
+
+def orb_h2_strategy(
+    df: pd.DataFrame,
+    start_time: str = "09:15",
+    end_time: str = "09:29",
+    entry_time: str = "09:30",
+) -> pd.Series:
+    """
+    Implements the PDF-based intraday ORB + H2 + Bias strategy.
+
+    Rules Summary:
+    - 9:15 open defines OPEN
+    - 9:15 candle defines BIAS
+    - 9:15–9:29 defines ORB HIGH/LOW and H2
+    - 9:30 decision based on:
+        H2 (priority) → ORB breakout → else no trade
+
+    Returns:
+        pd.Series of signals:
+        +1 = LONG
+        -1 = SHORT
+         0 = NO TRADE
+    """
+
+    df = df.copy()
+    signal = pd.Series(0, index=df.index, dtype=int)
+
+    # --- Extract session window ---
+    session = df.between_time(start_time, entry_time)
+
+    if session.empty:
+        return signal
+
+    # --- OPEN price ---
+    open_price = session.iloc[0]["open"]
+
+    # --- 9:15 candle (BIAS) ---
+    first_candle = session.iloc[0]
+    bias = 1 if first_candle["close"] >= first_candle["open"] else -1
+
+    # --- ORB window (9:15–9:29) ---
+    orb_window = df.between_time(start_time, end_time)
+
+    orb_high = orb_window["high"].max()
+    orb_low  = orb_window["low"].min()
+
+    # --- H2 logic ---
+    crossed_above_open = (orb_window["high"] > open_price).any()
+    crossed_below_open = (orb_window["low"] < open_price).any()
+
+    h2_long  = not crossed_below_open   # never went below open
+    h2_short = not crossed_above_open   # never went above open
+
+    # --- F15 direction (price at 9:29 vs open) ---
+    last_929 = orb_window.iloc[-1]
+    f15 = 1 if last_929["close"] > open_price else -1
+
+    # --- Entry candle (9:30) ---
+    entry_candle = df.between_time(entry_time, entry_time)
+    if entry_candle.empty:
+        return signal
+
+    entry_idx = entry_candle.index[0]
+    entry = entry_candle.iloc[0]
+
+    # ==============================
+    # STEP A — H2 (highest priority)
+    # ==============================
+    if h2_short:
+        signal.loc[entry_idx] = -1
+        return signal
+
+    if h2_long:
+        signal.loc[entry_idx] = 1
+        return signal
+
+    # ==============================
+    # STEP B — ORB Breakout
+    # ==============================
+    broke_high = (orb_window["high"] >= orb_high).any()
+    broke_low  = (orb_window["low"] <= orb_low).any()
+
+    # LONG breakout
+    if entry["close"] > orb_high and not broke_low:
+        signal.loc[entry_idx] = 1
+        return signal
+
+    # SHORT breakout
+    if entry["close"] < orb_low and not broke_high:
+        signal.loc[entry_idx] = -1
+        return signal
+
+    # ==============================
+    # STEP C/D — No trade cases
+    # ==============================
+    signal.loc[entry_idx] = 0
+
+    return signal.fillna(0).astype(int)
